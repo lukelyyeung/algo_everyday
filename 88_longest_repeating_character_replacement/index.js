@@ -1,6 +1,5 @@
 const assert = require('assert');
 
-// TODO: Change to O(N) solution
 /**
  * @param {string} s
  * @param {number} k
@@ -9,31 +8,33 @@ const assert = require('assert');
 function characterReplacement(s, k) {
   let left = 0;
   let right = 0;
+
+  const charCount = {
+    [s[0]]: 1,
+  };
   let maxLength = Number.NEGATIVE_INFINITY;
-  let firstReplacementIndex;
-  let repeatingChar = s[0];
-  let replacementCount = k;
 
-  while (right < s.length) {
-    if (s[right] !== repeatingChar) {
-      if (replacementCount === 0) {
-        replacementCount = k;
-        left = firstReplacementIndex ?? right;
-        right = left;
-        repeatingChar = s[right];
-        firstReplacementIndex = undefined;
-        continue;
-      }
+  function isStringRepeating() {
+    const minimalCountOfRepeatedChar = Math.max(0, right - left + 1 - k);
 
-      if (typeof firstReplacementIndex === 'undefined') {
-        firstReplacementIndex = right;
-      }
-
-      replacementCount--;
+    if (minimalCountOfRepeatedChar === 0) {
+      return true;
     }
 
-    maxLength = Math.max(maxLength, right - Math.max(0, left - replacementCount) + 1);
-    right++;
+    return Object.values(charCount).some((count) => count >= minimalCountOfRepeatedChar);
+  }
+
+  while (right >= left && right < s.length) {
+    if (isStringRepeating()) {
+      maxLength = Math.max(maxLength, right - left + 1);
+      right++;
+      const newChar = s[right];
+      charCount[newChar] = (charCount[newChar] || 0) + 1;
+    } else {
+      const charToBeRemoved = s[left];
+      charCount[charToBeRemoved] = charCount[charToBeRemoved] - 1;
+      left++;
+    }
   }
 
   return maxLength;
