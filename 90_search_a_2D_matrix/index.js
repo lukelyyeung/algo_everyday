@@ -1,68 +1,35 @@
+const assert = require('assert');
+
 /**
  * @param {number[][]} matrix
  * @param {number} target
  * @return {boolean}
  */
 function searchMatrix(matrix, target) {
-  // Lower bound search to locate the row
-  // Then binary search in the row for the target;
-
   let left = 0;
-  let right = matrix.length * 2 - 1;
-  let lowerBound;
+  let right = matrix.length * matrix[0].length - 1;
   const lengthOfRow = matrix[0].length;
 
   while (left <= right) {
     const center = Math.floor((left + right) / 2);
-    const isEndOfRow = center % 2 === 1;
-    const candidate = matrix[Math.floor(center / 2)][isEndOfRow ? lengthOfRow - 1 : 0];
+    const rowIndex = Math.floor(center / lengthOfRow);
+    const columnIndex = center - lengthOfRow * rowIndex;
 
-    if (candidate === target) {
+    if (target === matrix[rowIndex][columnIndex]) {
       return true;
     }
 
-    if (target > candidate) {
+    if (target > matrix[rowIndex][columnIndex]) {
       left = center + 1;
-
-      if (!isEndOfRow) {
-        lowerBound = center;
-      }
     } else {
       right = center - 1;
-
-      if (isEndOfRow) {
-        lowerBound = center;
-      }
-    }
-  }
-
-  const targetedRow = matrix[Math.floor(lowerBound / 2)];
-
-  if (!targetedRow) {
-    return false;
-  }
-
-  let rowStart = 0;
-  let rowEnd = lengthOfRow - 1;
-
-  while (rowStart <= rowEnd) {
-    const center = Math.floor((rowStart + rowEnd) / 2);
-
-    if (targetedRow[center] === target) {
-      return true;
-    }
-
-    if (targetedRow[center] > target) {
-      rowEnd = center - 1;
-    } else {
-      rowStart = center + 1;
     }
   }
 
   return false;
 }
 
-console.log(
+assert.equal(
   searchMatrix(
     [
       [1, 3, 5, 7],
@@ -71,8 +38,9 @@ console.log(
     ],
     3,
   ),
+  true,
 );
-console.log(
+assert.equal(
   searchMatrix(
     [
       [1, 3, 5, 7],
@@ -81,9 +49,10 @@ console.log(
     ],
     13,
   ),
+  false,
 );
 
-console.log(
+assert.equal(
   searchMatrix(
     [
       [1, 3, 5, 7],
@@ -92,9 +61,10 @@ console.log(
     ],
     11,
   ),
+  true,
 );
 
-console.log(
+assert.equal(
   searchMatrix(
     [
       [1, 3, 5, 7],
@@ -103,6 +73,21 @@ console.log(
     ],
     30,
   ),
+  true,
 );
 
-console.log(searchMatrix([[1]], 0));
+assert.equal(
+  searchMatrix(
+    [
+      [1, 3, 5, 7],
+      [10, 11, 16, 20],
+      [23, 30, 34, 60],
+    ],
+    60,
+  ),
+  true,
+);
+
+assert.equal(searchMatrix([[1]], 0), false);
+assert.equal(searchMatrix([[1]], 1), true);
+assert.equal(searchMatrix([[1]], 2), false);
